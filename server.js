@@ -119,6 +119,5 @@ d.run(function () {
 	// Start API
 	http.createServer(app).listen(config.APP_PORT, function () {
 		console.log("\n[*] Server Listening on port %d", config.APP_PORT);
-
 	});
 });
