@@ -1,37 +1,38 @@
 {
-    "name": "erp-lyn-cargo-api",
-    "version": "0.0.1",
-    "scripts": {
-        "start": "nodemon server.js"
-    },
-    "dependencies": {
-        "MD5": "^1.2.1",
-        "angular-md5": "^0.1.7",
-        "bignumber.js": "^2.0.3",
-        "busboy": "^0.2.9",
-        "cron": "~1.0.4",
-        "express": "~3.4.8",
-        "express-jwt": "~0.2.0",
-        "express-validator": "~2.1.0",
-        "gulp-concat": "^2.6.0",
-        "gulp-minify-css": "^1.2.1",
-        "gulp-rename": "^1.2.2",
-        "gulp-uglify": "^1.3.0",
-        "jlinq": "^1.0.0",
-        "jsonschema": "^1.0.0",
-        "jsonwebtoken": "~0.1.0",
-        "jsreport-client": "^0.3.0",
-        "lodash": "^3.9.3",
-        "mongodb": "^1.3.23",
-        "node-xlsx": "^0.5.1",
-        "nodemailer": "~0.6.1",
-        "q": "^1.0.1",
-        "soap": "^0.5.1",
-        "underscore": "^1.7.0",
-        "validator": "~3.5.0"
-    },
-    "devDependencies": {
-        "express": "~3.4.8",
-        "monk": "~0.8.1"
-    }
+  "name": "erp-lyn-cargo-api",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "MD5": "^1.2.1",
+    "angular-md5": "^0.1.7",
+    "bignumber.js": "^2.0.3",
+    "busboy": "^0.2.9",
+    "cron": "~1.0.4",
+    "currency-converter": "^0.1.12",
+    "express": "~3.4.8",
+    "express-jwt": "~0.2.0",
+    "express-validator": "~2.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-minify-css": "^1.2.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.3.0",
+    "jlinq": "^1.0.0",
+    "jsonschema": "^1.0.0",
+    "jsonwebtoken": "~0.1.0",
+    "jsreport-client": "^0.3.0",
+    "lodash": "^3.9.3",
+    "mongodb": "^1.3.23",
+    "node-xlsx": "^0.5.1",
+    "nodemailer": "~0.6.1",
+    "q": "^1.0.1",
+    "soap": "^0.5.1",
+    "underscore": "^1.7.0",
+    "validator": "~3.5.0"
+  },
+  "devDependencies": {
+    "express": "~3.4.8",
+    "monk": "~0.8.1"
+  }
 }

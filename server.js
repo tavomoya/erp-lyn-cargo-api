@@ -57,8 +57,8 @@ d.run(function () {
 		dbMongo = {},
 		jLinq = require('jlinq'),
 		secret = "asd243131",
+		Job = require('./models/job'),
 		Busboy  = require('busboy');
-
 
 	function getdbMongo() {
 		var deferred = q.defer();
@@ -74,7 +74,11 @@ d.run(function () {
 	}
 
 	getdbMongo().then(function (data) {
-		app.dbMongoClient = data;
+		// console.log('la data', data)
+		app.db = data;
+		var job = new Job(app.db)
+		job.dollarsToPesos();
+		job.euroToPesos();
 	}, function (err) {});
 
 	app.configure(function () {
@@ -107,14 +111,23 @@ d.run(function () {
 	});
 
 	//WebServices
+	require('./routes/account')('/account', app);
+	require('./routes/accountType')('/accountType', app);
+	require('./routes/document')('/document', app);
+	require('./routes/entity')('/entity', app);
+	require('./routes/item')('/item', app);
+	require('./routes/itemType')('/itemType', app);
     require('./routes/payroll')('/payroll', app);
+    require('./routes/quotation')('/quotation', app);
+    require('./routes/shipment')('/shipment', app);
+    require('./routes/shipmentType')('/shipmentType', app);
 
 
 	// Routes Principales
 	app.get('/routes', function (req, res) {
 		res.send(app.routes);
 	});
-	app.db = db;
+	// app.db = db;
 
 	// Start API
 	http.createServer(app).listen(config.APP_PORT, function () {
