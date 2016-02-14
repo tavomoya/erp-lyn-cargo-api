@@ -1,6 +1,7 @@
 'use strict';
 
 var q = require('q');
+var Data = require('./data');
 
 // Class constructor
 function ShipmentType (db) {
@@ -17,6 +18,8 @@ function ShipmentType (db) {
             }
         }
     };
+
+    this.data = new Data(db, 'SHIPMENTTYPE', this.schema);
 };
 
 //This is a test function

@@ -1,6 +1,7 @@
 'use strict';
 
 var q = require('q');
+var Data = require('./data');
 
 // Class constructor
 function Payroll (db) {
@@ -25,6 +26,8 @@ function Payroll (db) {
             }
         }
     };
+
+    this.data = new Data(db, 'PAYROLL', this.schema);
 };
 
 //This is a test function
