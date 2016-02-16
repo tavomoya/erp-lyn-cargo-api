@@ -9,4 +9,6 @@ module.exports = function (prefix, app) {
         .then(function (res){console.log('test worked', res)})
         .fail(function (err){console.log('did not worked :/')});
     });
+
+    require('./crud')(prefix, app, Shipment);
 }
