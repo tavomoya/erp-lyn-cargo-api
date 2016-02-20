@@ -6,34 +6,41 @@ d.on('error', function (er) {
 	var express = require('express'),
 		app = express(),
 		config = require('./config').init(app),
-		db = (config.MONGO_USR && config.MONGO_PASS) ? require('monk')(config.DB_URL, {
-			username: config.MONGO_USR,
-			password: config.MONGO_PASS
-		}) : require('monk')(config.DB_URL);
-	
+		MongoClient = require('mongodb').MongoClient;
+
 	console.log('----ERROR----');
 	console.error(er);
 	console.error(er.message);
 	console.error(er.stack);
 	
 	var error = {
-		fecha: new Date(),
-		mensaje: er.message,
+		date: new Date(),
+		message: er.message,
 		stack: er.stack
 	};
-	db.get('LOGERROR').insert(error, function (err) {
+
+	MongoClient.connect('mongodb://' + config.DB_URL, function (err, pDB) {
 		if (err) {
-			//Poner error en archivo log-dia
-			var fs = require('fs');
-			var urlfs = __dirname + "/log/log-" + new Date().getFullYear() + "-" + (parseInt(new Date().getMonth()) + 1) + "-" + new Date().getDate() + ".txt";
-			var txtError = "Fecha: " + error.fecha + ", Mensaje: " + error.mensaje + ", Stack: " + error.stack + "\n";
-			fs.appendFile(urlfs, txtError, function (err) {
-				if (err) {
-					console.log(err);
-				} else {
-					console.log("The log was saved in " + urlfs);
+			console.log('Cannot connect to Mongo', err);
+		} else {
+			var db = pDB;
+			db.collection('LOGERROR')
+			.insert(error, function (err, succ) {
+				if (succ) {
+					//Poner error en archivo log-dia
+					var fs = require('fs');
+					var urlfs = __dirname + "/log/log-" + new Date().getFullYear() + "-" + (parseInt(new Date().getMonth()) + 1) + "-" + new Date().getDate() + ".txt";
+					var txtError = "Fecha: " + error.date + ", Mensaje: " + error.message + ", Stack: " + error.stack + "\n";
+					fs.appendFile(urlfs, txtError, function (err) {
+						if (err) {
+							console.log(err);
+						} else {
+							console.log("The log was saved in " + urlfs);
+						}
+					});
 				}
-			});
+			})
+
 		}
 	});
 });
@@ -48,14 +55,9 @@ d.run(function () {
 		path = require('path'),
 		app = express(),
 		config = require('./config').init(app),
-		db = (config.MONGO_USR && config.MONGO_PASS) ? require('monk')(config.DB_URL, {
-			username: config.MONGO_USR,
-			password: config.MONGO_PASS
-		}) : require('monk')(config.DB_URL),
 		MongoClient = require('mongodb').MongoClient,
 		q = require('q'),
 		dbMongo = {},
-		jLinq = require('jlinq'),
 		secret = "asd243131",
 		Job = require('./models/job'),
 		Busboy  = require('busboy');
@@ -72,14 +74,6 @@ d.run(function () {
 		});
 		return deferred.promise;
 	}
-
-	getdbMongo().then(function (data) {
-		// console.log('la data', data)
-		app.db = data;
-		var job = new Job(app.db)
-		job.dollarsToPesos();
-		job.euroToPesos();
-	}, function (err) {});
 
 	app.configure(function () {
 		//app.use(express.logger());
@@ -129,8 +123,22 @@ d.run(function () {
 	});
 	// app.db = db;
 
-	// Start API
-	http.createServer(app).listen(config.APP_PORT, function () {
-		console.log("\n[*] Server Listening on port %d", config.APP_PORT);
-	});
+	/*
+		Need to get the MongoDB instance before 
+		starting the API so I don't get any errors
+		while executing methods in the models
+		and/or routes. Start Server after this
+	*/
+	getdbMongo().then(function (data) {
+		app.db = data;
+		var job = new Job(app.db)
+		job.dollarsToPesos();
+		job.euroToPesos();
+		
+		http.createServer(app).listen(config.APP_PORT, function () {
+			console.log("\n[*] Server Listening on port %d", config.APP_PORT);
+		});
+
+	}, function (err) {});
+
 });

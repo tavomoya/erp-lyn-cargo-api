@@ -8,7 +8,6 @@ var JsonSchema = require('jsonschema').Validator;
 function Data (db, collection, schema) {
 	this.db = db;
 	this.collection = db.collection(collection);
-	this.jsonschema = new JsonSchema();
 	this.schema = schema;
 };
 
@@ -31,12 +30,12 @@ function handleResponse (deferred, message) {
 	};
 };
 
-function validateSchema (deferred, object) {
-	if (!this.schema) {
+function validateSchema (deferred, object, schema) {
+	if (!schema) {
 		throw new Error ('Schema is not defined');
 	};
 
-	var validated = this.jsonschema.validate(object, this.schema);
+	var validated = new JsonSchema().validate(object, schema);
 
 	if (validated.errors.length > 0) {
 		deferred.reject(validated.errors);
@@ -76,7 +75,7 @@ Data.prototype.insert = function (object) {
 	var _this = this;
 	object.createdDate = new Date();
 
-	if (validateSchema(deferred, object)) {
+	if (validateSchema(deferred, object, _this.schema)) {
 		_this.collection.insert(object, 
 			handleResponse(deferred))
 	};

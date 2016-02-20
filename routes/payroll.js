@@ -10,5 +10,5 @@ module.exports = function (prefix, app) {
         .fail(function (err){console.log('did not worked :/')});
     });
 
-    require('./crud')(prefix, app, Payroll);
+    require('./data')(prefix, app, Payroll);
 }
