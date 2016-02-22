@@ -2,7 +2,10 @@
   "name": "erp-lyn-cargo-api",
   "version": "0.0.1",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "postinstall": "npm run import-database && node setup.js", 
+    "import-database":"mongorestore -d lyn_cargo datadump/lyn_cargo"
+
   },
   "dependencies": {
     "MD5": "^1.2.1",

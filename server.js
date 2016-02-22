@@ -1,61 +1,52 @@
 'use strict';
 
-var d = require('domain').create();
+var domain = require('domain').create();
+var express = require('express');
+var app = express();
+var MongoClient = require('mongodb').MongoClient;
+var config = require('./config').init(app);
 
-d.on('error', function (er) {
-	var express = require('express'),
-		app = express(),
-		config = require('./config').init(app),
-		MongoClient = require('mongodb').MongoClient;
+domain.on('error', function (error) {
 
-	console.log('----ERROR----');
-	console.error(er);
-	console.error(er.message);
-	console.error(er.stack);
-	
-	var error = {
+	// Error Object
+	var _error = {
 		date: new Date(),
-		message: er.message,
-		stack: er.stack
+		message: error.message,
+		stack: error.stack
 	};
 
-	MongoClient.connect('mongodb://' + config.DB_URL, function (err, pDB) {
-		if (err) {
-			console.log('Cannot connect to Mongo', err);
-		} else {
-			var db = pDB;
-			db.collection('LOGERROR')
-			.insert(error, function (err, succ) {
-				if (succ) {
-					//Poner error en archivo log-dia
-					var fs = require('fs');
-					var urlfs = __dirname + "/log/log-" + new Date().getFullYear() + "-" + (parseInt(new Date().getMonth()) + 1) + "-" + new Date().getDate() + ".txt";
-					var txtError = "Fecha: " + error.date + ", Mensaje: " + error.message + ", Stack: " + error.stack + "\n";
-					fs.appendFile(urlfs, txtError, function (err) {
-						if (err) {
-							console.log(err);
-						} else {
-							console.log("The log was saved in " + urlfs);
-						}
-					});
-				}
-			})
+	console.log('[*] Error: ',error.message);
+	console.log('[*] Stack: ',error.stack);
 
+	MongoClient.connect('mongodb://' + config.DB_URL, function (err, pDB) {
+		try {
+			db.get('LOGERROR').insert(_error, function (err, errorLog) {
+				if (err)
+					throw err;
+				console.log("[*] Log saved on " + filePath);
+			});
+		}
+		catch (err) {
+			// Log saved into ./log folder
+			console.log('[*] Error while saving error: ', error);
+			var fs = require('fs');
+			var filePath = __dirname + "/log/log-" + new Date().getFullYear() + "-" + (parseInt(new Date().getMonth()) + 1) + "-" + new Date().getDate() + ".txt";
+			var txtLineError = _error.date.toISOString() + "|" + _error.message + "|" + _error.stack + "\n";
+			fs.appendFile(filePath, txtLineError, function (errorLog) {
+				console.log("[*] Log saved on " + filePath);
+			});
 		}
 	});
 });
 
-d.run(function () {
-	var express = require('express'),
-		jwt = require('jsonwebtoken'),
+domain.run(function () {
+	var	jwt = require('jsonwebtoken'),
 		auth = require('express-jwt'),
 		http = require('http'),
 		validator = require('express-validator'),
 		cron = require('cron').CronJob,
 		path = require('path'),
-		app = express(),
-		config = require('./config').init(app),
-		MongoClient = require('mongodb').MongoClient,
+		config = require('./config').init(app),//
 		q = require('q'),
 		dbMongo = {},
 		secret = "asd243131",
@@ -78,9 +69,7 @@ d.run(function () {
 	app.configure(function () {
 		//app.use(express.logger());
 		app.use(express.methodOverride());
-		app.use('/api', auth({
-			secret: secret
-		}));
+		app.use('/api', auth({secret: secret }));
 		app.use(express.json({limit: '50mb'}));
 		app.use(express.urlencoded({limit: '50mb'}));
 		app.use(validator());
@@ -111,17 +100,16 @@ d.run(function () {
 	require('./routes/entity')('/entity', app);
 	require('./routes/item')('/item', app);
 	require('./routes/itemType')('/itemType', app);
-    require('./routes/payroll')('/payroll', app);
-    require('./routes/quotation')('/quotation', app);
-    require('./routes/shipment')('/shipment', app);
-    require('./routes/shipmentType')('/shipmentType', app);
+	require('./routes/payroll')('/payroll', app);
+	require('./routes/quotation')('/quotation', app);
+	require('./routes/shipment')('/shipment', app);
+	require('./routes/shipmentType')('/shipmentType', app);
 
 
 	// Routes Principales
 	app.get('/routes', function (req, res) {
 		res.send(app.routes);
 	});
-	// app.db = db;
 
 	/*
 		Need to get the MongoDB instance before 
@@ -129,7 +117,8 @@ d.run(function () {
 		while executing methods in the models
 		and/or routes. Start Server after this
 	*/
-	getdbMongo().then(function (data) {
+	getdbMongo()
+	.then(function (data) {
 		app.db = data;
 		var job = new Job(app.db)
 		job.dollarsToPesos();
@@ -139,6 +128,7 @@ d.run(function () {
 			console.log("\n[*] Server Listening on port %d", config.APP_PORT);
 		});
 
-	}, function (err) {});
+	})
+	.fail(function (err) {});
 
 });
