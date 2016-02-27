@@ -24,7 +24,7 @@ module.exports = function (prefix, app, reference) {
 
     app.put(prefix, function (req, res) {
         new reference(app.db).data
-        .update(req.body.qry, req.body.objs, req.body.opts)
+        .update(req.body.qry, req.body.obj, req.body.opts)
         .then(success(res), error(res));
     });
 
